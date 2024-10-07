@@ -1,8 +1,0 @@
-INDEX VERSION 1.4+/home/sasi-670-test/eclipse-workspace/.metadata/.plugins/org.eclipse.wst.jsdt.core/indexes
-2600743176.index
-2278448883.index
-0.index
-795861159.index
-4283831159.index
-1914015310.index
-627227994.index

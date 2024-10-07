@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename package &apos;repository&apos; to &apos;Repository&apos;&#x0A;- Original project: &apos;InventoryManagement&apos;&#x0A;- Original element: &apos;InventoryManagement/src/repository&apos;&#x0A;- Renamed element: &apos;InventoryManagement/src/Repository&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename package &apos;repository&apos;" flags="589830" hierarchical="false" id="org.eclipse.jdt.ui.rename.package" input="/src&lt;repository" name="Repository" qualified="false" references="true" stamp="1704797781422" textual="false" version="1.0"/>
-</session>

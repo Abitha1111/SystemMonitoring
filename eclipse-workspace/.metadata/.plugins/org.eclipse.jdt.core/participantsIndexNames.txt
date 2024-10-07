@@ -1,5 +1,0 @@
-INDEX VERSION 1.134
-/home/sasi-670-test/eclipse-workspace/.metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/357637974.index
-/BloodBank/src/main/java
-/home/sasi-670-test/eclipse-workspace/.metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/43934973.index
-/Onlineticketbooking/src/main/java
