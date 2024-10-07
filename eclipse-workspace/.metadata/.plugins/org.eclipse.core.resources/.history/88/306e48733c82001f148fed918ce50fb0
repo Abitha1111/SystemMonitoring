@@ -1,0 +1,79 @@
+package com.websocket;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class DatabaseManager {
+	private static final String URL = "jdbc:mysql://localhost:3306/message"; // Update with your database URL
+	private static final String USER = "root"; // Update with your database username
+	private static final String PASSWORD = "1234"; // Update with your database password
+
+	public static Connection getConnection() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver"); // Register the driver
+			return DriverManager.getConnection(URL, USER, PASSWORD);
+		} catch (ClassNotFoundException e) {
+			System.err.println("JDBC Driver not found: " + e.getMessage());
+		} catch (SQLException e) {
+			System.err.println("Connection failed: " + e.getMessage());
+		}
+		return null;
+	}
+
+	// Save system info with additional fields
+	public static void saveSystemInfo(String message, String hostname, String ip, String cpuModel, String totalMemory,
+			String usedMemory, String uptime, String wifi, String battery, String sshInfo, String timestamp) {
+		String query = "INSERT INTO messages (content, hostname, ip, cpu_model, total_memory, used_memory, uptime, wifi, battery, ssh_info, timestamp) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+			stmt.setString(1, message);
+			stmt.setString(2, hostname);
+			stmt.setString(3, ip);
+			stmt.setString(4, cpuModel);
+			stmt.setString(5, totalMemory);
+			stmt.setString(6, usedMemory);
+			stmt.setString(7, uptime);
+			stmt.setString(8, wifi);
+			stmt.setString(9, battery);
+			stmt.setString(10, sshInfo);
+			stmt.setString(11, timestamp);
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Retrieve system info
+	public static String retrieveSystemInfo() {
+		String query = "SELECT content, hostname, ip, cpu_model, total_memory, used_memory, uptime, wifi, battery, ssh_info, timestamp "
+				+ "FROM messages ORDER BY id DESC LIMIT 1";
+		try (Connection conn = getConnection();
+				PreparedStatement stmt = conn.prepareStatement(query);
+				ResultSet rs = stmt.executeQuery()) {
+			if (rs.next()) {
+				String content = rs.getString("content");
+				String hostname = rs.getString("hostname");
+				String ip = rs.getString("ip");
+				String cpuModel = rs.getString("cpu_model");
+				String totalMemory = rs.getString("total_memory");
+				String usedMemory = rs.getString("used_memory");
+				String uptime = rs.getString("uptime");
+				String wifi = rs.getString("wifi");
+				String battery = rs.getString("battery");
+				String sshInfo = rs.getString("ssh_info");
+				String timestamp = rs.getString("timestamp");
+
+				return String.format(
+						"Message: %s\nHostname: %s\nIP: %s\nCPU Model: %s\nTotal Memory: %s\nUsed Memory: %s\nUptime: %s\nWiFi: %s\nBattery: %s\nSSH Info: %s\nTimestamp: %s",
+						content, hostname, ip, cpuModel, totalMemory, usedMemory, uptime, wifi, battery, sshInfo,
+						timestamp);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+}

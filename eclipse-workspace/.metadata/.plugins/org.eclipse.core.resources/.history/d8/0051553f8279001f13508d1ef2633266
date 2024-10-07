@@ -1,0 +1,70 @@
+package dailypractices;
+
+import java.util.Scanner;
+
+public class Sort {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Enter the array size :");
+		int size = sc.nextInt();
+		int[] array = new int[size];
+		System.out.println("Input array :");
+		for (int i = 0; i < size; i++) {
+			array[i] = sc.nextInt();
+		}
+		sortOddEven(array);
+		System.out.println("Output array :");
+		for (int num : array) {
+			System.out.print(num + " ");
+		}
+	}
+
+	private static void sortOddEven(int[] array) {
+		// TODO Auto-generated method stub
+		int oddcount = 0, evencount = 0;
+		for (int num : array) {
+			if (num % 2 != 0) {
+				oddcount++;
+			} else {
+				evencount++;
+			}
+		}
+		int[] oddnum = new int[oddcount];
+		int[] evennum = new int[evencount];
+		int oddindex = 0, evenindex = 0;
+		for (int num : array) {
+			if (num % 2 != 0) {
+				oddnum[oddindex++] = num;
+			} else {
+				evennum[evenindex++] = num;
+			}
+		}
+		for (int i = 0; i < oddnum.length - 1; i++) {
+			for (int j = i + 1; j < oddnum.length; j++) {
+				if (oddnum[i] < oddnum[j]) {
+					int temp = oddnum[i];
+					oddnum[i] = oddnum[j];
+					oddnum[j] = temp;
+				}
+			}
+		}
+		for (int i = 0; i < evennum.length - 1; i++) {
+			for (int j = i + 1; j < evennum.length; j++) {
+				if (evennum[i] > evennum[j]) {
+					int temp = evennum[i];
+					evennum[i] = evennum[j];
+					evennum[j] = temp;
+				}
+			}
+		}
+		int index = 0;
+		for (int odd : oddnum) {
+			array[index++] = odd;
+		}
+		for (int even : evennum) {
+			array[index++] = even;
+		}
+	}
+}

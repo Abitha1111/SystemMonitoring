@@ -1,0 +1,32 @@
+package com.websocket;
+
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import jakarta.websocket.server.ServerEndpoint;
+
+@ServerEndpoint("/servers")
+public class ServerWebSocket {
+
+    @OnOpen
+    public void onOpen(Session session) {
+        System.out.println("WebSocket connection opened with session ID: " + session.getId());
+    }
+
+    @OnMessage
+    public void onMessage(String message, Session session) throws Exception {
+        System.out.println("Message received: " + message);
+    }
+
+    @OnClose
+    public void onClose(Session session) {
+        System.out.println("WebSocket connection closed with session ID: " + session.getId());
+    }
+
+    @OnError
+    public void onError(Session session, Throwable throwable) {
+        System.err.println("Error occurred for session ID: " + session.getId() + ", error: " + throwable.getMessage());
+    }
+}

@@ -1,0 +1,26 @@
+package com.websocket;
+	import java.util.LinkedList;
+	import java.util.Queue;
+
+	public class MessageQueue {
+	    private static Queue<String> queue;
+
+	    public MessageQueue() {
+	        this.queue = new LinkedList<>();
+	    }
+
+	    public synchronized static void addMessage(String message) {
+	        queue.add(message);
+	        System.out.println("Message added to queue: " + message);
+	    }
+
+	    public synchronized static String getMessage() {
+	        return queue.poll(); // Retrieves and removes the head of the queue, or returns null if this queue is empty
+	    }
+
+	    public synchronized boolean isEmpty() {
+	        return queue.isEmpty();
+	    }
+	}
+
+

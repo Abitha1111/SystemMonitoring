@@ -1,0 +1,37 @@
+package com.websocket;
+
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+
+import javax.websocket.server.ServerEndpoint;
+
+@ServerEndpoint("/clientws")
+public class Clientcode {
+
+	@OnOpen
+	public void onOpen(Session session) {
+		System.out.println("write web socket con called!!");
+	}
+
+	@OnMessage
+	public void onMessage(String message, Session session) throws Exception {
+       System.out.println("hello");
+       session.getBasicRemote().sendText(message);
+		System.out.println(message);
+
+	}
+
+	@OnClose
+	public void onClose(Session session) {
+		// Handle closing of writer WebSocket connection
+		System.out.println("con closed!!");
+	}
+
+	@OnError
+	public void onError(Session session, Throwable throwable) {
+		// Handle errors on writer WebSocket connection
+	}
+}

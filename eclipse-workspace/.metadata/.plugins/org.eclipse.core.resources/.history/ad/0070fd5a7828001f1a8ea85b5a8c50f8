@@ -1,0 +1,61 @@
+package puzzsums;
+
+import java.util.Scanner;
+
+public class BridgeCrossing {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        int A = 1;
+        int B = 2;
+        int C = 5;
+        int D = 8;
+        int totalTime = 0;
+
+        System.out.println("Bridge Crossing Problem");
+        System.out.println("Person A takes 1 minute.");
+        System.out.println("Person B takes 2 minutes.");
+        System.out.println("Person C takes 5 minutes.");
+        System.out.println("Person D takes 8 minutes.");
+        System.out.println("The goal is to get everyone across the bridge in 15 minutes or less.\n");
+
+        // Step 1: A and B cross
+        System.out.println("Step 1: A and B cross");
+        System.out.println("Time taken: " + B + " minutes");
+        totalTime += B;
+        System.out.println("Total time so far: " + totalTime + " minutes\n");
+
+        // Step 2: A returns
+        System.out.println("Step 2: A returns");
+        System.out.println("Time taken: " + A + " minutes");
+        totalTime += A;
+        System.out.println("Total time so far: " + totalTime + " minutes\n");
+
+        // Step 3: C and D cross
+        System.out.println("Step 3: C and D cross");
+        System.out.println("Time taken: " + D + " minutes");
+        totalTime += D;
+        System.out.println("Total time so far: " + totalTime + " minutes\n");
+
+        // Step 4: B returns
+        System.out.println("Step 4: B returns");
+        System.out.println("Time taken: " + B + " minutes");
+        totalTime += B;
+        System.out.println("Total time so far: " + totalTime + " minutes\n");
+
+        // Step 5: A and B cross again
+        System.out.println("Step 5: A and B cross again");
+        System.out.println("Time taken: " + B + " minutes");
+        totalTime += B;
+        System.out.println("Total time so far: " + totalTime + " minutes\n");
+
+        // Check if total time is 15 minutes
+        if (totalTime <= 15) {
+            System.out.println("Success! All four people crossed the bridge in " + totalTime + " minutes.");
+        } else {
+            System.out.println("Failure. It took too long for all four people to cross the bridge.");
+        }
+
+        scanner.close();
+    }
+}

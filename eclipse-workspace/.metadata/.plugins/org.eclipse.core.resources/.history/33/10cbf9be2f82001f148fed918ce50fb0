@@ -1,0 +1,49 @@
+
+package com.websocket;
+
+	import java.sql.Connection;
+	import java.sql.DriverManager;
+	import java.sql.PreparedStatement;
+	import java.sql.SQLException;
+
+	public class DatabaseManager {
+	    private Connection connection;
+
+	    // Constructor to initialize the database connection
+	    public DatabaseManager(String url, String user, String password) {
+	        try {
+	            connection = DriverManager.getConnection(url, user, password);
+	            System.out.println("Database connection established!");
+	        } catch (SQLException e) {
+	            System.err.println("Error establishing database connection: " + e.getMessage());
+	        }
+	    }
+
+	    // Method to store a message in the database
+	    public void storeMessage(Message message) {
+	        String sql = "INSERT INTO messages (type, content) VALUES (?, ?)";
+	        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+	            stmt.setString(1, message.getType());
+	            stmt.setString(2, message.getContent());
+	            stmt.executeUpdate();
+	            System.out.println("Message stored in database: " + message);
+	        } catch (SQLException e) {
+	            System.err.println("Error storing message in database: " + e.getMessage());
+	        }
+	    }
+
+	    // Method to close the database connection
+	    public void closeConnection() {
+	        try {
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Database connection closed!");
+	            }
+	        } catch (SQLException e) {
+	            System.err.println("Error closing database connection: " + e.getMessage());
+	        }
+	    }
+	}
+
+
+

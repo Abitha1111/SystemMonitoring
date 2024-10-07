@@ -1,0 +1,121 @@
+package com.websocket;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.json.JSONObject; 
+
+public class DatabaseManager {
+    private static final String URL = "jdbc:mysql://localhost:3306/SystemMonitoring"; // Update with your database URL
+    private static final String USER = "root"; // Update with your database username
+    private static final String PASSWORD = "1234"; // Update with your database password
+
+    public static Connection getConnection() {
+        Connection connection = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); // Register the driver
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException e) {
+            System.err.println("JDBC Driver not found: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Connection failed: " + e.getMessage());
+        }
+        return connection;
+    }
+
+    // Save a message to the database
+    public static void saveMessage(String message) {
+        String query = "INSERT INTO messages (content) VALUES (?)";
+        try (Connection conn = DatabaseManager.getConnection()) {
+			try ( PreparedStatement stmt = conn.prepareStatement(query)) {
+			    stmt.setString(1, message);
+			    stmt.executeUpdate();
+			} catch (SQLException e) {
+			    e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
+    // Retrieve the latest message
+    public static String retrieveMessage() {
+        String query = "SELECT content FROM messages ORDER BY id DESC LIMIT 1";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("content");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Save system info with additional fields
+    public static void saveSystemInfo(String message, String hostname, String ip, String cpuModel, String totalMemory,
+                                      String usedMemory, String uptime, String wifi, String battery, String sshInfo, String timestamp) {
+        String query = "INSERT INTO messages (content, hostname, ip, cpu_model, total_memory, used_memory, uptime, wifi, battery, ssh_info, timestamp) "
+                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, message);
+            stmt.setString(2, hostname);
+            stmt.setString(3, ip);
+            stmt.setString(4, cpuModel);
+            stmt.setString(5, totalMemory);
+            stmt.setString(6, usedMemory);
+            stmt.setString(7, uptime);
+            stmt.setString(8, wifi);
+            stmt.setString(9, battery);
+            stmt.setString(10, sshInfo);
+            stmt.setString(11, timestamp);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Retrieve system info
+   // Add this import statement
+
+ // Save system info with parsed fields
+ public static void saveSystemInfo(String jsonString) {
+     // Parse the JSON string
+     JSONObject jsonObject = new JSONObject(jsonString);
+     JSONObject abithaInfo = jsonObject.getJSONObject("Abitha_info");
+
+     String message = jsonString;
+     String hostname = abithaInfo.getString("hostname");
+     String ip = abithaInfo.getString("ip");
+     String cpuModel = abithaInfo.getString("cpu_model");
+     String totalMemory = abithaInfo.getString("total_memory");
+     String usedMemory = abithaInfo.getString("used_memory");
+     String uptime = abithaInfo.getString("uptime");
+     String wifi = abithaInfo.getString("wifi");
+     String battery = abithaInfo.getString("battery");
+     String sshInfo = abithaInfo.getString("ssh_info");
+     String timestamp = abithaInfo.getString("timestamp");
+
+     String query = "INSERT INTO messages (content, hostname, ip, cpu_model, total_memory, used_memory, uptime, wifi, battery, ssh_info, timestamp) "
+                  + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+     try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+         stmt.setString(1, message);
+         stmt.setString(2, hostname);
+         stmt.setString(3, ip);
+         stmt.setString(4, cpuModel);
+         stmt.setString(5, totalMemory);
+         stmt.setString(6, usedMemory);
+         stmt.setString(7, uptime);
+         stmt.setString(8, wifi);
+         stmt.setString(9, battery);
+         stmt.setString(10, sshInfo);
+         stmt.setString(11, timestamp);
+         stmt.executeUpdate();
+     } catch (SQLException e) {
+         e.printStackTrace();
+     }
+ }

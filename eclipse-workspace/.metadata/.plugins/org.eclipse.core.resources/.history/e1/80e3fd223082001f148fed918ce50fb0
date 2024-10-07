@@ -1,0 +1,59 @@
+package com.websocket;
+
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
+
+@ServerEndpoint("/serverws")
+public class ServerWebSocket {
+
+	// A thread-safe set to store active sessions
+	private static Set<Session> clients = new CopyOnWriteArraySet<>();
+
+	@OnOpen
+	public void onOpen(Session session) {
+		clients.add(session); // Add new session to the set
+		System.out.println("WebSocket connection opened!");
+	}
+
+	@OnMessage
+	public void onMessage(String message, Session session) throws Exception {
+		System.out.println("Received message: " + message);
+		DatabaseManager.saveMessage(message);
+		// Add the received message to the queue
+		MessageQueue.addMessage(message);
+
+		// Broadcast the message to all connected clients
+		broadcastMessage(message);
+	}
+
+	@OnClose
+	public void onClose(Session session) {
+		clients.remove(session); // Remove the session when closed
+		System.out.println("WebSocket connection closed!");
+	}
+
+	@OnError
+	public void onError(Session session, Throwable throwable) {
+		System.err.println("WebSocket error: " + throwable.getMessage());
+	}
+
+	// Method to broadcast a message to all connected clients
+	private void broadcastMessage(String message) {
+		for (Session client : clients) {
+			if (client.isOpen()) {
+				try {
+					client.getBasicRemote().sendText(message);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}
