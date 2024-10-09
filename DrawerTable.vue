@@ -1,11 +1,5 @@
 <template>
   <div>
-  
-    <select v-model="selectedTable" @change="handleTableChange" >
-     
-      <option v-for="(table, index) in tableNames" :key="index" :value="table">{{ table }}</option>
-    </select>
-
     <table v-if="tableData.length" class="modern-table">
       <thead>
         <tr>
@@ -83,7 +77,6 @@ export default {
   props: ['systemName'],
   data() {
     return {
-      tableNames: ['viji_info', 'Abitha_info', 'Kirthiga_info', 'Thulasi_info', 'Thangavi_info', 'Pragathi_info', 'praveen_info', 'mounish_info', 'Hari_info'],
       selectedTable: this.$route.params.systemName, 
       tableData: [], // Initial empty array for table data
       displayedColumns: [
@@ -122,7 +115,7 @@ export default {
       this.loading = true;
 
       try {
-        const response = await fetch(`http://192.168.173.168:8080/SystemMonitoring/ClientServlet?table=${this.selectedTable}&offset=${this.offset}&limit=${this.limit}`);
+        const response = await fetch(`http://swathi:8080/SystemMonitoring/ClientServlet?table=${this.selectedTable}&offset=${this.offset}&limit=${this.limit}`);
         if (!response.ok) throw new Error('Failed to fetch data');
 
         const newData = await response.json();
