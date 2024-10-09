@@ -57,8 +57,12 @@
             <span class="label">Battery:</span>
             <div class="battery-container">
               <div class="battery">
-                <div class="battery-fill" :style="{ width: batteryPercentage(systemInfo.battery) + '%' }"></div>
-              </div>
+  <div
+    class="battery-fill"
+    :style="{ width: batteryPercentage(systemInfo.battery) + '%', backgroundColor: getBatteryFillColor(systemInfo.battery) }"
+  ></div>
+</div>
+
               <span class="percentage">{{ batteryPercentage(systemInfo.battery) }}%</span>
               <span class="battery-state">{{ batteryState(systemInfo.battery) }}</span>
               <span class="time-to-empty">{{ batteryTimeToEmpty(systemInfo.battery) }}</span>
@@ -91,7 +95,7 @@ export default {
     let socket = null; // Declare socket variable
     let dataTimer = null; // Timer to track data reception
     const DATA_TIMEOUT = 5000;
-    const THRESHOLD = 5000; // Set the threshold to 10 seconds (10,000 ms)
+    const THRESHOLD = 15000; // Set the threshold to 10 seconds (10,000 ms)
     let cleanupInterval = null; // Interval for cleaning up old data
 
     const formatTimestamp = (timestamp) => {
@@ -127,6 +131,16 @@ export default {
     const isSshInactive = (sshInfo) => {
       return sshInfo && sshInfo.toLowerCase().includes('no active ssh connections');
     };
+    const getBatteryFillColor = (batteryInfo) => {
+  const percentage = batteryPercentage(batteryInfo);
+  if (percentage < 30) {
+    return '#f50707'; // Color for battery percentage below 30%
+  } else if (percentage > 80) {
+    return '#26f030'; // Color for battery percentage above 80%
+  } else {
+    return '#f2ba1f'; // Color for battery percentage between 30% and 80%
+  }
+};
 
     const filteredSystemData = computed(() => {
       const currentTime = new Date().getTime();
@@ -146,7 +160,7 @@ export default {
 
     const fetchData = () => {
       try {
-        socket = new WebSocket('ws://192.168.173.168:8080/SystemMonitoring/clientws');
+        socket = new WebSocket('ws://swathi:8080/SystemMonitoring/clientws');
 
         socket.onopen = () => {
           console.log('WebSocket connection established');
@@ -255,18 +269,17 @@ export default {
       getMemoryPercentage,
       isSshActive,
       isSshInactive,
+      getBatteryFillColor,
     };
   },
 };
+
+
 </script>
 
 
 <style scoped>
-/* * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-} */
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3,1fr);
