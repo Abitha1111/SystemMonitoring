@@ -79,7 +79,7 @@ public class DBFunction {
 		try {
 		
 			// Prepare SQL query with limit and offset
-			String query = "SELECT * FROM " + tableName + " LIMIT ? OFFSET ?";
+			 String query = "SELECT * FROM " + tableName + " ORDER BY id DESC LIMIT ? OFFSET ?";
 			PreparedStatement pstmt = connection.prepareStatement(query);
 			pstmt.setInt(1, limit);
 			pstmt.setInt(2, offset);
