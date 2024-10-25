@@ -212,27 +212,6 @@ func getUptime() (string, error) {
  return uptimeDuration.String(), nil
 }
 
-/*
- func getWiFiInfo() (string, error) {
- // Get a list of network interfaces
- interfaces, err := net.Interfaces()
- if err != nil {
- return "", fmt.Errorf("failed to get network interfaces: %v", err)
- }
-
- for _, iface := range interfaces {
- // Check if the interface is up and is an Ethernet interface
- if iface.Flags&net.FlagUp != 0 && iface.Flags&net.FlagLoopback == 0 {
- // Check if the interface is of Ethernet type
- if strings.HasPrefix(iface.Name, "en") { // Assuming Ethernet interfaces start with "en"
- return fmt.Sprintf("%s : ethernet", iface.Name), nil
- }
- }
- }
-
- return "No active Ethernet connection found", nil
- }
-*/
 
 func getWiFiInfo() (string, error) {
  // Execute the 'nmcli device status' command to get the status of network devices
