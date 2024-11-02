@@ -1,85 +1,324 @@
+// modify the component name as DrawerTable.vue
+<template>
+  <div>
+    <table v-if="tableData.length" class="modern-table">
+      <thead>
+        <tr>
+          <th v-for="(column, index) in displayedColumns" :key="index">{{ column.label }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(row, rowIndex) in tableData" :key="rowIndex" @click="showDrawer(row)">
+          <td>{{ row.hostname }}</td>
+          <td>{{ row.ip }}</td>
+          <td>{{ row.cpu_model }}</td>
+          <td>{{ row.total_memory }}</td>
+          <td>{{ row.used_memory }}</td>
+          <td>{{ row.uptime }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div ref="observer" class="scroll-trigger"></div>
 
-   <template>
-    <div class="system-list">
-      <h1>Systems</h1>
-      <select v-model="selectedSystem">
-        <option value="" disabled>Select a system</option>
-        <option
-          v-for="(system, index) in validSystems"
-          :key="index"
-          :value="system.system1_info"
-        >
-          {{ system.system1_info.hostname || `System ${index + 1}` }}
-        </option>
-      </select>
-  
-      <h2>Details</h2>
-      <div v-if="selectedSystem" class="system-details">
-        <p><strong>CPU Model:</strong> {{ selectedSystem.cpu_model }}</p>
-        <p><strong>Total Memory:</strong> {{ selectedSystem.total_memory }}</p>
-        <p><strong>Used Memory:</strong> {{ selectedSystem.used_memory }}</p>
-        <p><strong>Uptime:</strong> {{ selectedSystem.uptime }}</p>
-        <p><strong>WiFi:</strong> {{ selectedSystem.wifi }}</p>
-        <p><strong>Battery:</strong> {{ selectedSystem.battery }}</p>
-        <p><strong>SSH Info:</strong> {{ selectedSystem.ssh_info }}</p>
-        <p><strong>Active Users:</strong> {{ selectedSystem.active_users }}</p>
-        <p><strong>Timestamp:</strong> {{ formatTimestamp(selectedSystem.timestamp) }}</p>
-      </div>
-      <div v-else>
-        <p>No systems selected.</p>
+    <div v-if="drawerVisible" class="drawer" @click.self="closeDrawer">
+      <div class="drawer-content">
+        <button class="close-button" @click="closeDrawer">x</button>
+        <h3>{{ selectedTable }}</h3>
+        <table class="drawer-table">
+          <tbody>
+            <tr>
+              <td class="key">Hostname:</td>
+              <td class="value">{{ selectedRow.hostname }}</td>
+            </tr>
+            <tr>
+              <td class="key">IP:</td>
+              <td class="value">{{ selectedRow.ip }}</td>
+            </tr>
+            <tr>
+              <td class="key">CPU Model:</td>
+              <td class="value">{{ selectedRow.cpu_model }}</td>
+            </tr>
+            <tr>
+              <td class="key">Open Services:</td>
+              <td class="value">{{ selectedRow.nmap_scan}}</td>
+            </tr>
+            <tr>
+              <td class="key">Total Memory:</td>
+              <td class="value">{{ selectedRow.total_memory }}</td>
+            </tr>
+            <tr>
+              <td class="key">Used Memory:</td>
+              <td class="value">{{ selectedRow.used_memory }}</td>
+            </tr>
+            <tr>
+              <td class="key">Uptime:</td>
+              <td class="value">{{ selectedRow.uptime }}</td>
+            </tr>
+            <tr>
+              <td class="key">WiFi:</td>
+              <td class="value">{{ selectedRow.wifi }}</td>
+            </tr>
+            <tr>
+              <td class="key">Battery:</td>
+              <td class="value">{{ selectedRow.battery }}</td>
+            </tr>
+            <tr>
+              <td class="key">SSH Info:</td>
+              <td class="value">{{ selectedRow.ssh_info }}</td>
+            </tr>
+            <tr>
+              <td class="key">Timestamp:</td>
+              <td class="value">{{ formatTimestamp(selectedRow.timestamp) }}</td>
+            </tr>
+            <tr>
+              <td class="key">Disk Usage:</td>
+              <td class="value">{{ selectedRow.DiskUsage }}</td>
+            </tr>
+            <tr>
+              <td class="key">Bluetooth Connection:</td>
+              <td class="value">{{ selectedRow.Bluetoothuse}}</td>
+            </tr>
+            <tr>
+              <td class="key">OS:</td>
+              <td class="value">{{ selectedRow.OperatingSystem}}</td>
+            </tr>
+            <tr>
+              <td class="key">Hardware Model:</td>
+              <td class="value">{{ selectedRow.HardwareModel}}</td>
+            </tr>
+            <tr>
+              <td class="key">Hardware Vendor:</td>
+              <td class="value">{{ selectedRow.HardwareVendor}}</td>
+            </tr>
+            <tr>
+              <td class="key">Firewall Status:</td>
+              <td class="value">{{ selectedRow.Firewallstatus}}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </template>
-  
-  <script>
-  
+  </div>
+</template>
 
-  </script>
-  
-  <style scoped>
-  .system-list {
-    padding: 20px;
-    max-width: 600px;
-    margin: auto;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+<script>
+export default {
+  name: "DrawerTable",
+  props: ["systemName"],
+  data() {
+    return {
+      selectedTable: this.$route.params.systemName,
+      tableData: [], // Initial empty array for table data
+      displayedColumns: [
+        { label: "Hostname" },
+        { label: "IP Address" },
+        { label: "CPU Model" },
+        { label: "Total Memory" },
+        { label: "Used Memory" },
+        { label: "Uptime" }
+      ],
+      drawerVisible: false,
+      selectedRow: null,
+      offset: 0,
+      limit: 25,
+      loading: false,
+      observer: null
+    };
+  },
+  watch: {
+    systemName(newSystemName) {
+      if (newSystemName) {
+        this.selectedTable = newSystemName; // Update selectedTable to the new systemName
+        this.fetchData(true); // Fetch data for the new system
+      }
+    }
+  },
+  methods: {
+    async fetchData(isNewTable = false) {
+      // If it's a new table, reset the table data and offset
+      if (isNewTable) {
+        this.tableData = [];
+        this.offset = 0;
+      }
+
+      if (!this.selectedTable || this.loading) return; // Avoid loading multiple times
+
+      this.loading = true;
+
+      try {
+        const response = await fetch(
+          `http://192.168.11.251:8080/SystemMonitoring/ClientServlet?table=${this.selectedTable}&offset=${this.offset}&limit=${this.limit}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch data");
+
+        const newData = await response.json();
+
+        if (isNewTable) {
+          this.tableData = newData;
+        } else {
+          this.tableData = [...this.tableData, ...newData]; // Append new data
+        }
+
+        this.offset += this.limit;
+        this.loading = false;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        this.loading = false;
+      }
+    },
+    showDrawer(row) {
+      this.selectedRow = row; // Set the selected row data
+      this.drawerVisible = true; // Open the drawer
+    },
+    closeDrawer() {
+      this.drawerVisible = false; // Close the drawer
+      this.selectedRow = null; // Clear selected row
+    },
+    formatTimestamp(timestamp) {
+      if (!timestamp) return "N/A";
+      const date = new Date(timestamp);
+      return date.toLocaleString(); // Formats timestamp into readable date and time
+    },
+    setupObserver() {
+      this.observer = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && !this.loading) {
+          this.fetchData(); // Load more data when user scrolls to the bottom
+        }
+      });
+      this.observer.observe(this.$refs.observer);
+    },
+    handleTableChange() {
+      this.fetchData(true); // Reset data when a new table is selected
+    }
+  },
+  mounted() {
+    this.setupObserver();
+  },
+  beforeUnmount() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
   }
-  
-  select {
-    margin-bottom: 15px;
-    padding: 10px;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    transition: border-color 0.3s;
-  }
-  
-  select:focus {
-    border-color: #007BFF;
-    outline: none;
-  }
-  
-  .system-details {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 10px;
-  }
-  
-  h1 {
-    color: #333;
-    font-size: 24px;
-  }
-  
-  h2 {
-    color: #333;
-    font-size: 20px;
-  }
-  
-  p {
-    margin: 5px 0;
-    color: #555;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.modern-table {
+  width: 100%; /* Ensure the table occupies full width */
+  border-collapse: collapse;
+  margin-top: -25px;
+  background-color: #f9f9f9;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-sizing: border-box; /* Include padding and border in width calculation */
+  margin-left: 120px;
+}
+
+/* Table header styles */
+.modern-table th {
+  background-color: #51575e;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+/* Table cell styles */
+.modern-table td {
+  padding: 12px;
+  text-align: left;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+/* Hover effect for table rows */
+.modern-table tr:hover {
+  background-color: #e0e0e0;
+}
+
+/* Drawer styles */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  background-color: #f3f3f3;
+  color: rgb(5, 3, 3);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.drawer-content {
+  overflow-y: auto;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.close-button:hover {
+  transform: scale(1.1);
+}
+
+/* Drawer table styles */
+.drawer-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-sizing: border-box;
+}
+
+.drawer-table tr {
+  border-bottom: 1px solid #080303;
+}
+
+.drawer-table td {
+  padding: 15px;
+}
+
+.drawer-table .key {
+  font-weight: bold;
+  width: 30%;
+  border-right: 1px solid #030000;
+  box-sizing: border-box;
+  background-color: rgb(240, 225, 237);
+}
+
+.drawer-table .value {
+  width: 70%;
+}
+
+.main-content {
+  margin-left: 400px;
+  padding: 20px;
+  flex-grow: 1;
+  width: calc(100% - 400px); /* Ensure the content area adapts to screen size */
+  box-sizing: border-box;
+}
+thead {
+  display: table-header-group;
+  vertical-align: middle;
+  unicode-bidi: isolate;
+  border-color: inherit;
+  position: sticky;
+  top: 0%;
+  z-index: 1;
+  background-color: #51575e;
+}
+</style>
