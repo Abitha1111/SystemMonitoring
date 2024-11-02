@@ -1,24 +1,51 @@
 
 <template>
-  <div id="app">
-    <!-- <SideMenu /> -->
-    <TableSelector />
+  <div id="app"> 
+    <SideMenu v-if="isAuthenticated &&!isLoginPage"/> 
+   
     <div class="main-content">
-      <router-view /> <!-- This will render the currently active route component -->
+      <router-view /> 
     </div>
   </div>
 </template>
 
 <script>
-//import SideMenu from './components/SideMenu.vue'; // Import the SideMenu component
-import TableSelector from './components/TableSelector.vue';
+
+import SideMenu from './components/SideMenu.vue'; // Import the SideMenu component
+
 export default {
   name: 'App',
   components: {
-   // SideMenu,
-     TableSelector,
+     SideMenu,
+     
+   
+   
   },
+  computed: {
+    isAuthenticated() {
+      return localStorage.getItem('isAuthenticated');
+    },
+    isLoginPage() {
+      return this.$route.path === '/login';
+    },
+  },
+  watch: {
+    // Recheck when the route changes (for example, after login)
+    $route(to) {
+      if (!this.isAuthenticated && to.path !== '/login') {
+        this.$router.push('/login'); // Redirect if unauthenticated
+      }
+    },
+  },
+  mounted() {
+    // Redirect to login if not authenticated initially
+    if (!this.isAuthenticated && this.$route.path !== '/login') {
+      this.$router.push('/login');
+    }
+  },
+
 };
+
 </script>
 
 <style>
@@ -28,14 +55,18 @@ body {
   margin: 0;
   padding: 0;
 }
+h1{
+  text-align: center;
+}
 
 .main-content {
-  margin-left: 260px; /* Leave space for the side menu */
+  margin-left: 200px; /* Leave space for the side menu */
   padding: 20px;
+  flex-grow: 1; /* This allows the main content area to take remaining space */
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 20px auto;
   padding: 20px;
   background: white;
