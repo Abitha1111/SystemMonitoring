@@ -114,5 +114,26 @@ public class DBFunction {
 //	public static void main(String[] args) {
 //		DBFunction.getDataWithLimitAndOffset("Thulasi_info", 20, 0);
 //	}
+		public static  boolean authenticateUser(String username, String password) throws Exception {
+        // Connect to database and check if the user exists
+		
+		
+		
+        try  
+        {
+        	Connection connection = DBConnection.getInstance().getConnection();
+            String query = "SELECT username FROM users WHERE username = ? AND password = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, username);
+            stmt.setString(2, password); // Do NOT store plain text passwords in production!
+            ResultSet rs = stmt.executeQuery();
+
+            return rs.next(); // Return true if a match is found
+        }catch(Exception e) {
+        	System.out.println(e);
+        }
+		return false;
+        
+    }
 
 }
